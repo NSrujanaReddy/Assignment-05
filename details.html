@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Details</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f8f8f8;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .left, .right {
+      flex: 1;
+      min-width: 300px;
+      padding: 20px;
+    }
+    .main-image {
+      width: 100%;
+      border-radius: 8px;
+      height: 400px;
+      object-fit: cover;
+    }
+    .thumbnails {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    .thumbnails img {
+      width: 70px;
+      height: 70px;
+      border-radius: 6px;
+      cursor: pointer;
+      object-fit: cover;
+      border: 2px solid transparent;
+      transition: border 0.3s;
+    }
+    .thumbnails img:hover {
+      border-color: #007BFF;
+    }
+    .title {
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .rating {
+      color: #f39c12;
+      margin-bottom: 10px;
+    }
+    .price {
+      font-size: 24px;
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .price-gap {
+      font-size: 16px;
+      margin-top: 10px;
+      color: #333;
+    }
+    .add-to-cart {
+      margin-top: 20px;
+      background: #28a745;
+      color: white;
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .add-to-cart:hover {
+      background-color: #218838;
+    }
+    .specs table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    .specs th, .specs td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    .specs th {
+      width: 40%;
+      color: #555;
+    }
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="left">
+      <img id="mainImage" class="main-image" src="" alt="Main Product Image" />
+      <div class="thumbnails" id="thumbnailContainer"></div>
+    </div>
+
+    <div class="right">
+      <div class="title" id="title">Loading...</div>
+      <div class="rating" id="rating">★★★★☆ (0/5)</div>
+      <div class="price" id="price">₹0</div>
+      <div class="price-gap" id="priceGap"></div>
+      <button class="add-to-cart">Add to Cart</button>
+
+      <div class="specs">
+        <table id="specTable">
+          <!-- Filled by JavaScript -->
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const product = JSON.parse(localStorage.getItem("selectedProduct"));
+    const comparedProduct = JSON.parse(localStorage.getItem("comparedProduct")); // Optional
+
+    if (product) {
+      const mainImage = document.getElementById("mainImage");
+      const title = document.getElementById("title");
+      const rating = document.getElementById("rating");
+      const price = document.getElementById("price");
+      const priceGap = document.getElementById("priceGap");
+      const specTable = document.getElementById("specTable");
+      const thumbnailContainer = document.getElementById("thumbnailContainer");
+
+      // Set main image
+      mainImage.src = product.thumbnail;
+
+      // Set text fields
+      title.textContent = product.title;
+      rating.textContent = `★★★★☆ (${product.rating}/5)`;
+      price.textContent = `₹${product.price}`;
+
+      // Compare price if comparedProduct is present
+      if (comparedProduct) {
+        const gap = Math.abs(product.price - comparedProduct.price);
+        priceGap.textContent = `Price difference with "${comparedProduct.title}": ₹${gap}`;
+      }
+
+      // Fill specifications
+      specTable.innerHTML = `
+        <tr><th>Brand</th><td>${product.brand}</td></tr>
+        <tr><th>Category</th><td>${product.category}</td></tr>
+        <tr><th>Stock</th><td>${product.stock}</td></tr>
+        <tr><th>Discount</th><td>${product.discountPercentage}%</td></tr>
+        <tr><th>Description</th><td>${product.description}</td></tr>
+      `;
+
+      // Show at least 3 thumbnails
+      let images = Array.isArray(product.images) ? product.images.slice(0, 3) : [];
+      while (images.length < 3) {
+        images.push(product.thumbnail);
+      }
+
+      thumbnailContainer.innerHTML = ""; // clear
+      images.forEach(imgUrl => {
+        const thumb = document.createElement("img");
+        thumb.src = imgUrl;
+        thumb.alt = "Thumbnail";
+        thumb.onclick = () => {
+          mainImage.src = imgUrl;
+        };
+        thumbnailContainer.appendChild(thumb);
+      });
+    } else {
+      document.body.innerHTML = "<h2 style='text-align:center;margin-top:50px;'>No product data found.</h2>";
+    }
+  </script>
+
+</body>
+</html>
